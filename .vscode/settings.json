@@ -1,0 +1,5 @@
+{
+  "npm.packageManager": "pnpm",
+  "stylelint.packageManager": "pnpm",
+  "typescript.tsserver.useSyntaxServer": "auto"
+}
