@@ -4,7 +4,7 @@
     "outDir": "dist",
     "sourceMap": true,
     "moduleResolution": "NodeNext",
-    "typeRoots": ["./node_modules/@types/", "./types"],
+    "typeRoots": ["./node_modules/@types", "./types"],
     "module": "NodeNext",
     "target": "ES2022",
     "esModuleInterop": true,

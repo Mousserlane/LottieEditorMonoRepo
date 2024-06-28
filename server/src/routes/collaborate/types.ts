@@ -1,11 +1,4 @@
-// export type Session = {
-//   sessionId: number,
-//   participants: {
-//     id: string,
-//     name?: string,
-//     state: any // should contain the participant state e.g which layer is selected, toolkit, etc
-//   }[]
-// }
+import type { WebSocket } from "ws";
 
 export enum MESSAGE_TYPE {
   FILE_UPLOAD = 'file_upload',
@@ -23,3 +16,5 @@ export type SessionMessage<T> = {
   type: MESSAGE_TYPE;
   data: T
 }
+
+export type Clients = Set<{ clientId: string, conn: WebSocket, colorScheme: string }>

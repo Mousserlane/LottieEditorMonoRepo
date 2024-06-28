@@ -16,37 +16,26 @@ const useGetLayerProperties = (layer: Layer) => {
     layer?.shapes?.forEach((shape, index) => {
       const shapeItem = shape?.it
 
-      console.log('si', shapeItem)
 
       if (shapeItem) {
         const fill = traverseTree(shape, 'fl', `/shapes/${index}`)
-        // console.log('fl tree', fltree)
-        // const fill = shapeItem?.find(item => findType(item, 'fl'))
         const stroke = traverseTree(shape, 'st', `/shapes/${index}`)
         const gradient = traverseTree(shape, 'gf', `/shapes/${index}`)
-        // const stroke = shapeItem?.find(item => findType(item, 'st'))
-        // const gradient = shapeItem.find(item => item.ty === 'gr');
 
         if (fill) {
           shapeColors.push({
             colors: fill?.item?.c?.k as number[],
             path: `${fill.path}/c/k`
-            // typeIndex: shapeItem?.findIndex(item => findType(item, 'fl')),
-            // shapeIndex: index
           })
         } else if (stroke) {
           shapeColors.push({
             colors: stroke?.item?.c?.k as number[],
             path: `${stroke.path}/c/k`
-            // typeIndex: shapeItem?.findIndex(item => findType(item, 'st')),
-            // shapeIndex: index
           })
         } else if (gradient) {
           shapeColors.push({
             colors: gradient?.item?.s?.k as number[],
             path: `${gradient.path}/c/k`
-            // typeIndex: shapeItem.findIndex(item => findType(item, 'gf')),
-            // shapeIndex: index
           })
         }
 
@@ -57,7 +46,6 @@ const useGetLayerProperties = (layer: Layer) => {
 
   useEffect(() => {
     if (layer) {
-      // setColors([])
       getColors()
     }
   }, [layer, getColors]);

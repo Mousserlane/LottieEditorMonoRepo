@@ -1,38 +1,63 @@
 'use client'
-import React, { useState } from 'react';
-// import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { relottie } from '@lottiefiles/relottie';
+import React, { useEffect, useState } from 'react';
 import { LottiePlayer } from './components/LottiePlayer';
+import { useWebSocketSession } from '../../context/WebSocketContextProvider';
 import { Dropzone, Modal } from '../../components';
 import LayerManager from '../LayerManager';
 import { useStore } from '@/app/stores';
 import Toolkit from '../Toolkit';
 import FeaturedAnimation from '../FeaturedAnimation';
+import { MESSAGE_TYPE } from '../Websocket/types';
+import { useCollaboration } from '@/app/hooks/useCollaboration';
+import { getRandomColor } from '@/app/utils/clientColorRandomizer';
+import { Header } from './components/Header';
 
 
 // NOTE : Websocket should be a context provider that wraps Editor Page
 interface IEditorProps { }
 
 const Editor: React.FC<IEditorProps> = () => {
-  const { setAnimationAndLayers, animation } = useStore();
+  const { setAnimationAndLayers, animation, setClientId, setColorScheme } = useStore();
+  const { clientId, getActiveAnimation, getMessage, sendMessage } = useCollaboration()
+
+  useEffect(() => {
+    if (clientId) {
+      setClientId(clientId);
+      // NOTE : Possible color clash
+      setColorScheme(getRandomColor());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId])
+
   const [isModalShown, setIsModalShown] = useState(false);
 
-  // const { sendMessage, lastMessage, readyState, } = useWebSocket('ws://localhost:3000/collaborate', {
-  //   heartbeat: {
-  //     message: 'ping',
-  //     returnMessage: 'pong',
-  //     timeout: 60000,
-  //     interval: 120000
-  //   },
-  // })
+  // TODO : upload animation data. Should be a hook
+  useEffect(() => {
+    const uploadAnimationData = async () => {
+      try {
+        await fetch('http://localhost:3000/collaborate', { method: "POST", body: JSON.stringify(animation) });
+      } catch (error) {
+        console.log('error fetch', error)
+      }
+    }
 
-  const onDrop = (animationData: string) => {
-    // const processor = relottie().data('settings', {
-    //   parse: { position: false }
-    // })
+    const parsedMessage = getMessage();
 
-    // const tree = processor.parse(animationData);
+    if (animation && parsedMessage?.type !== MESSAGE_TYPE.HAS_ACTIVE_FILE) {
+      uploadAnimationData()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animation])
 
+  useEffect(() => {
+    const activeAnimationData = getActiveAnimation();
+    if (!animation) {
+      setAnimationAndLayers(JSON.parse(activeAnimationData!));
+    }
+  }, [getMessage, animation])
+
+  const onDrop = async (animationData: string) => {
+    // TODO : need to send the data to server to be streamed
     setAnimationAndLayers(JSON.parse(animationData))
   }
 
@@ -44,19 +69,10 @@ const Editor: React.FC<IEditorProps> = () => {
     setIsModalShown(false)
   }
 
-  // const connectionStatus = {
-  //   [ReadyState.CONNECTING]: 'Connecting',
-  //   [ReadyState.OPEN]: 'Open',
-  //   [ReadyState.CLOSING]: 'Closing',
-  //   [ReadyState.CLOSED]: 'Closed',
-  //   [ReadyState.UNINSTANTIATED]: 'Uninstantiated'
-  // }[readyState]
 
   return (
     <div className="flex flex-col h-screen overflow-y-hidden">
-      <div className='bg-green-400 p-4'>
-        <h1>Header</h1>
-      </div>
+      <Header />
       <div className='flex justify-evenly items-center h-screen border-r-2 border-r-gray-300'>
         <LayerManager />
         <div className='bg-slate-300 w-3/4 h-full px-4'>

@@ -13,7 +13,8 @@ const isShapeContainsItem = (shape: any): shape is { it: IShapeItem[] } => {
 }
 
 const traverseTree = <T>(shape: T | T[], targetType: string, path: string = ''): Result<T> => {
-  // Immediately return if its neither
+  // Immediately return if its neither to prevent recursive function from
+  // running unnecessarily
   if (typeof shape !== 'object' || shape === null) {
     return { item: null, path: undefined };
   }

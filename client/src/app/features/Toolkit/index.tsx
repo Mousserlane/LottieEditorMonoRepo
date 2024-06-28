@@ -12,10 +12,10 @@ import { Layer } from '../LayerManager/types'
 interface IToolkitProps { }
 
 const tools: Tool[] = [
-  {
-    title: 'Scale',
-    inputType: 'range'
-  },
+  // {
+  //   title: 'Scale',
+  //   inputType: 'range'
+  // },
   {
     title: "All Colors",
     inputType: 'color'
@@ -26,25 +26,17 @@ const Toolkit: FC<IToolkitProps> = () => {
 
   const { colors } = useGetLayerProperties(selectedLayer!)
 
-  console.log('colors', colors)
   const onChangeValue = (value: string | number, inputType: ToolkitInputType) => {
-    // console.log('gituu')
-    // if (inputType === 'color') {
-    //   const rgbValue = hexToRGB(value as string);
-    // } else {
-    //   // do something
-    // }
+
   }
 
   // TODO : fix type's type
   const onChangeColor = (hex: string, path: string) => {
     const rgbValue = hexToRGB(hex);
 
-    console.log('path', path)
-    console.log('ty')
     const patched = applyPatch(selectedLayer, [{
       op: 'replace',
-      path, //`/shapes/${shapeIndex!}/it/${typeIndex}/c/k`,
+      path,
       value: rgbValue
     }], { mutate: true })
     updateLayerData(patched.doc as Layer)
