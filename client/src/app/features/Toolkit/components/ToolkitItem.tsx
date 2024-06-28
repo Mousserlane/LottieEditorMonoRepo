@@ -5,13 +5,13 @@ import { RGBToHex } from '@/app/utils/colorTransformers'
 
 interface IToolkitItemProps extends Tool {
   isExpanded?: boolean
-  onChange: (value: any, type: ToolkitInputType) => void
+  // onChange: (value: any, type: ToolkitInputType) => void
   selectedLayer: Layer
   colors: Color[],
   onChangeColor: (val: string, path: string) => void
 }
 
-export const ToolkitItem: FC<IToolkitItemProps> = ({ title, inputType, isExpanded = false, onChange, colors, onChangeColor }) => {
+export const ToolkitItem: FC<IToolkitItemProps> = ({ title, inputType, isExpanded = false, colors, onChangeColor }) => {
 
   const renderColors = () => {
     return (
@@ -32,7 +32,7 @@ export const ToolkitItem: FC<IToolkitItemProps> = ({ title, inputType, isExpande
     <div className='border-b-2 border-b-slate-300 py-6 flex-col flex'>
       <h3>{title}</h3>
       {
-        inputType === 'color' ? renderColors() : <input type={inputType} onChange={(e) => onChange(e.target.value, inputType)} />
+        inputType === 'color' ? renderColors() : <input type={inputType} />
       }
 
     </div>

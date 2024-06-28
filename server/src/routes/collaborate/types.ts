@@ -9,7 +9,8 @@ export enum MESSAGE_TYPE {
   CLIENT_MODIFIED_FILE = 'client_modified_file',
   PING = 'PING',
   PONG = 'PONG',
-  ACTIVE_CLIENTS = 'active_clients'
+  ACTIVE_CLIENTS = 'active_clients',
+  ANIMATION_DATA_CHANGED = 'animation_data_changed',
 }
 
 export type SessionMessage<T> = {

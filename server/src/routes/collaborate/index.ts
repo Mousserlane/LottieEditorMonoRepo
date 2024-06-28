@@ -2,6 +2,7 @@ import { FastifyPluginAsync } from 'fastify'
 import { v4 as uuidv4 } from 'uuid';
 import { Clients, MESSAGE_TYPE, SessionMessage } from './types.js';
 import { getRandomColor } from '../../utils/clientColorRandomizer.js';
+import { applyPatch } from 'json-joy/lib/json-patch/index.js';
 // TODO : Should use CRDT 
 // import { applyPatch } from 'json-joy/lib/json-patch'
 
@@ -10,7 +11,6 @@ const clients: Clients = new Set();
 let animationData: string = ''
 
 const broadcastMessage = <T>(clients: Clients, message: SessionMessage<T>) => {
-  console.log('broadcast', message)
   for (const client of clients) {
     client.conn.send(JSON.stringify(message))
   }
@@ -20,9 +20,10 @@ const collaborate: FastifyPluginAsync = async (fastify, opts): Promise<void> => 
   fastify.get('/', { websocket: true }, async function (socket, request) {
     const clientId = uuidv4();
 
-    clients.add({ clientId, conn: socket, colorScheme: getRandomColor() });
+    const client = { clientId, colorScheme: getRandomColor() }
+    clients.add({ ...client, conn: socket, });
 
-    socket.send(JSON.stringify({ type: "connection_open", data: { message: 'connection open', clientId }, }));
+    socket.send(JSON.stringify({ type: "connection_open", data: { message: 'connection open', clientId: client.clientId, colorScheme: client.colorScheme }, }));
 
     if (Boolean(animationData)) {
       socket.send(JSON.stringify({ type: MESSAGE_TYPE.HAS_ACTIVE_FILE, data: animationData }))
@@ -39,11 +40,24 @@ const collaborate: FastifyPluginAsync = async (fastify, opts): Promise<void> => 
       const parsedMessage: SessionMessage<any> = JSON.parse(bufferToString);
 
       if (parsedMessage.type === MESSAGE_TYPE.CLIENT_SELECT_LAYER) {
-        const client = Array.from(clients).find(client => client.clientId === parsedMessage.data.clientId)
+        const client = Array.from(clients).find(client => client.clientId === parsedMessage.data.client.clientId)
         broadcastMessage<any>(clients, {
           type: MESSAGE_TYPE.CLIENT_SELECT_LAYER,
           data: {
-            selectedLayer: parsedMessage.data.selectedLayer, client
+            selectedLayer: parsedMessage.data.selectedLayer, clientId: client?.clientId, colorScheme: client?.colorScheme
+          }
+        })
+      }
+
+      if (parsedMessage.type === MESSAGE_TYPE.ANIMATION_DATA_CHANGED) {
+        const { layer, operation, clientId } = parsedMessage.data;
+        const patched = applyPatch(layer, [operation], { mutate: false })
+
+        broadcastMessage(clients, {
+          type: MESSAGE_TYPE.ANIMATION_DATA_CHANGED,
+          data: {
+            layer: patched.doc,
+            updatedBy: clientId
           }
         })
       }
@@ -68,7 +82,7 @@ const collaborate: FastifyPluginAsync = async (fastify, opts): Promise<void> => 
 
       reply.status(200).send({ status: 'Upload Successful' })
     } catch (error) {
-      console.log('error', error)
+      console.error('error', error)
       reply.status(500).send({ status: "Upload Error", message: error })
     }
   })

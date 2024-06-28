@@ -16,7 +16,6 @@ const root: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     })
 
     socket.on('pong', () => {
-      console.log('pong received')
       socket.send('pong!')
     })
   })

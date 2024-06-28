@@ -8,6 +8,8 @@ import { useStore } from '@/app/stores'
 import { RGBToHex, hexToRGB } from '@/app/utils/colorTransformers'
 import useGetLayerProperties from '@/app/hooks/useGetLayerProperties'
 import { Layer } from '../LayerManager/types'
+import { useCollaboration } from '@/app/hooks/useCollaboration'
+import { MESSAGE_TYPE, SessionMessage } from '../Websocket/types'
 
 interface IToolkitProps { }
 
@@ -22,23 +24,39 @@ const tools: Tool[] = [
   }
 ]
 const Toolkit: FC<IToolkitProps> = () => {
-  const { animation, selectedLayer, updateLayerData } = useStore()
-
+  const { animation, selectedLayer, updateLayerData, clientId } = useStore()
+  const { sendMessage, getMessage, } = useCollaboration()
   const { colors } = useGetLayerProperties(selectedLayer!)
 
-  const onChangeValue = (value: string | number, inputType: ToolkitInputType) => {
+  // const onChangeValue = (value: string | number, inputType: ToolkitInputType) => {
 
-  }
+  // }
 
   // TODO : fix type's type
   const onChangeColor = (hex: string, path: string) => {
     const rgbValue = hexToRGB(hex);
 
-    const patched = applyPatch(selectedLayer, [{
+    const operation: Operation = {
       op: 'replace',
       path,
       value: rgbValue
-    }], { mutate: true })
+    }
+    const patched = applyPatch(selectedLayer, [operation], { mutate: true })
+
+    sendMessage(JSON.stringify({
+      type: MESSAGE_TYPE.ANIMATION_DATA_CHANGED, data: {
+        layer: selectedLayer,
+        operation,
+        clientId
+      }
+    }));
+
+    const message = getMessage() as SessionMessage<any>;
+
+    if (message && message.type === MESSAGE_TYPE.ANIMATION_DATA_CHANGED && message?.data?.updatedBy !== clientId) {
+      updateLayerData(message?.data?.layer)
+    }
+
     updateLayerData(patched.doc as Layer)
 
   }
@@ -57,7 +75,6 @@ const Toolkit: FC<IToolkitProps> = () => {
           onChangeColor={onChangeColor}
           inputType={tool.inputType}
           key={index}
-          onChange={onChangeValue}
         />
       ))}
     </div>

@@ -12,6 +12,8 @@ interface ILayerItemProps {
   onSelectLayer: (selectedLayer: Layer) => void
   sessionState: any;
   isExternallySelected: boolean;
+  hideLayer: (layer: Layer) => void;
+  showLayer: (layer: Layer) => void;
 }
 
 export const LayerItem: FC<ILayerItemProps> = ({
@@ -20,7 +22,9 @@ export const LayerItem: FC<ILayerItemProps> = ({
   onSelectLayer,
   sessionState,
   isExternallySelected,
-  isSelected
+  isSelected,
+  hideLayer,
+  showLayer
 }) => {
   // TODO : This and its function should be in the parent to improve performance
   const [isHidden, setIsHidden] = useState(false);
@@ -30,17 +34,6 @@ export const LayerItem: FC<ILayerItemProps> = ({
     ...rest,
     layers: [{ ...layerData }],
   }
-
-  // TODO : Should be in a hook
-  const hideLayer = useCallback((layer: Layer) => {
-    const patched = applyPatch(layer, [{ op: 'replace', path: `/ks/o/k`, value: 0 }], { mutate: false })
-    updateLayerData(patched.doc as Layer)
-  }, [updateLayerData])
-
-  const showLayer = useCallback((layer: Layer) => {
-    const patched = applyPatch(layer, [{ op: 'replace', path: `/ks/o/k`, value: 100 }], { mutate: false })
-    updateLayerData(patched.doc as Layer)
-  }, [updateLayerData])
 
   const toggleLayer = () => {
     setIsHidden(prevState => !prevState)
@@ -58,11 +51,9 @@ export const LayerItem: FC<ILayerItemProps> = ({
     }
   }, [layerData, isHidden, hideLayer, showLayer])
 
-  console.log('is externally selected', isExternallySelected)
-
   return (
     <>
-      <div className={`flex flex-row items-center mb-4 hover:border-2 rounded-md border-gray-500 ${isSelected && colorScheme} ${isExternallySelected && sessionState?.colorScheme}`} onClick={selectLayer}>
+      <div className={`flex flex-row items-center mb-4 hover:border-2 rounded-md border-gray-500 ${isSelected ? colorScheme : isExternallySelected ? sessionState?.colorScheme : ''}`} onClick={selectLayer}>
         <div className='flex flex-row items-center'>
           <div id={`box-${layerData.mn || layerData.nm}`} className='w-16 h-16 bg-slate-300 justify-center items-center flex rounded-md'>
             <Player
@@ -77,7 +68,6 @@ export const LayerItem: FC<ILayerItemProps> = ({
           <button className='p-2 bg-red-800 rounded-md text-white'>Del</button>
         </div>
       </div>
-      {/* <p>{!isSelf && isSelected && sessionState?.clientId}</p> */}
     </>
   )
 }

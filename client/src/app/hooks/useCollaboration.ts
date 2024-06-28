@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useWebSocketSession } from "../context/WebSocketContextProvider"
 import { Layer, LottieAnimationBase } from "../features/LayerManager/types";
-import { MESSAGE_TYPE, SessionMessage } from "../features/Websocket/types";
+import { Client, MESSAGE_TYPE, SessionMessage } from "../features/Websocket/types";
 import { UserSessionStore } from "../stores/userSessionStore";
 
 const isMessageContainsData = (message: any): message is { data: any } => {
@@ -10,7 +10,7 @@ const isMessageContainsData = (message: any): message is { data: any } => {
 
 export const useCollaboration = () => {
 
-  const [clientId, setClientId] = useState<string>();
+  const [client, setClient] = useState<Client>({} as any);
   const { message, sendMessage, connectionStatus } = useWebSocketSession();
 
   const getMessage = useCallback(<T>(): MessageEvent<SessionMessage<T>> | null => {
@@ -51,9 +51,9 @@ export const useCollaboration = () => {
   useEffect(() => {
     const msg = getMessage() as SessionMessage<any>;
     if (connectionStatus === 'Open' && msg?.data?.hasOwnProperty('clientId')) {
-      setClientId(msg?.data?.clientId)
+      setClient({ clientId: msg?.data?.clientId, colorScheme: msg?.data?.colorScheme })
     }
-  }, [connectionStatus, getMessage, setClientId])
+  }, [connectionStatus, getMessage, setClient])
 
   return {
     connectionStatus,
@@ -61,7 +61,7 @@ export const useCollaboration = () => {
     getActiveAnimation,
     broadcastUserLayerPosition,
     sendMessage,
-    clientId,
+    client,
     getSelectedLayer,
   }
 }

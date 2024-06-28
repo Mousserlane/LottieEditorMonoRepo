@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useCollaboration } from '@/app/hooks/useCollaboration'
-import { MESSAGE_TYPE } from '../../Websocket/types';
+import { Client, MESSAGE_TYPE } from '../../Websocket/types';
 
-type Client = {
-  clientId: string;
-  colorScheme: string;
-}
 export const Header = () => {
   const { connectionStatus, getMessage } = useCollaboration()
   const [activeClients, setActiveClients] = useState<Client[]>([]);

@@ -37,7 +37,6 @@ export const createLottieAnimationStore: StateCreator<LottieAnimationStore, [], 
     set(() => ({ selectedLayer: layerData }))
   },
   updateLayerData: (newLayerData) => {
-    // set(() => ({ animation: newAnimationData }))
     set((state) => ({
       animation: {
         ...state.animation!,
