@@ -66,6 +66,7 @@ const collaborate: FastifyPluginAsync = async (fastify, opts): Promise<void> => 
     })
 
     socket.on('close', (_, reason) => {
+      clients.delete({ ...client, conn: socket });
       socket.send(reason)
       socket.terminate()
     })
