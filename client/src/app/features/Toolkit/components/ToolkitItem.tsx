@@ -5,7 +5,6 @@ import { RGBToHex } from '@/app/utils/colorTransformers'
 
 interface IToolkitItemProps extends Tool {
   isExpanded?: boolean
-  // onChange: (value: any, type: ToolkitInputType) => void
   selectedLayer: Layer
   colors: Color[],
   onChangeColor: (val: string, path: string) => void

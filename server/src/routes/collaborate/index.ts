@@ -62,19 +62,19 @@ const collaborate: FastifyPluginAsync = async (fastify, opts): Promise<void> => 
         })
       }
 
-      if (parsedMessage.type === MESSAGE_TYPE.LAYER_DELETED) {
-        const { animation, operation, clientId } = parsedMessage.data;
+      // if (parsedMessage.type === MESSAGE_TYPE.LAYER_DELETED) {
+      //   const { animation, operation, clientId } = parsedMessage.data;
 
-        const patched = applyPatch(animation, [operation], { mutate: false })
+      //   const patched = applyPatch(animation, [operation], { mutate: false })
 
-        broadcastMessage(clients, {
-          type: MESSAGE_TYPE.LAYER_DELETED,
-          data: {
-            animation: patched.doc,
-            updatedBy: clientId
-          }
-        })
-      }
+      //   broadcastMessage(clients, {
+      //     type: MESSAGE_TYPE.LAYER_DELETED,
+      //     data: {
+      //       animation: patched.doc,
+      //       updatedBy: clientId
+      //     }
+      //   })
+      // }
 
       socket.send(JSON.stringify({ type: "acknowledge", data: "received" }))
     })

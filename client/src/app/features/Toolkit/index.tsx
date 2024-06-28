@@ -1,5 +1,5 @@
 'use client'
-import React, { FC } from 'react'
+import React, { FC, useEffect } from 'react'
 import { applyPatch } from 'json-joy/lib/json-patch'
 import type { Operation } from 'json-joy/lib/json-patch'
 import { Tool, ToolkitInputType } from './types'
@@ -24,6 +24,14 @@ const Toolkit: FC<IToolkitProps> = () => {
   const { sendMessage, getMessage, } = useCollaboration()
   const { colors } = useGetLayerProperties(selectedLayer!)
 
+  useEffect(() => {
+    const message = getMessage() as SessionMessage<any>;
+
+    if (message && message.type === MESSAGE_TYPE.ANIMATION_DATA_CHANGED && message?.data?.updatedBy !== clientId) {
+      updateLayerData(message?.data?.layer)
+    }
+  }, [clientId, getMessage, updateLayerData])
+
   const onChangeColor = (hex: string, path: string) => {
     const rgbValue = hexToRGB(hex);
 
@@ -41,12 +49,6 @@ const Toolkit: FC<IToolkitProps> = () => {
         clientId
       }
     }));
-
-    const message = getMessage() as SessionMessage<any>;
-
-    if (message && message.type === MESSAGE_TYPE.ANIMATION_DATA_CHANGED && message?.data?.updatedBy !== clientId) {
-      updateLayerData(message?.data?.layer)
-    }
 
     updateLayerData(patched.doc as Layer)
 
