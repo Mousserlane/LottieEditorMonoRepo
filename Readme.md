@@ -35,6 +35,7 @@ Navigate to `http://localhost:1513/editor` to start editing your lottie animatio
 - No Authentication at this time
 - Session's clients is not deleted on refresh
 - Animation is restarted after each edit or after toggling its visibility
+- Issue with broadcast delete. In other client session, the wrong layer(s) are deleted
 
 # Missing Feature
 
@@ -43,3 +44,7 @@ Navigate to `http://localhost:1513/editor` to start editing your lottie animatio
 - Session Manager to handle mutliple/different sessions
 - Client username/name for the
 - Database implementation
+
+# Note
+
+- Hide is intentionally not broadcasted as this can annoy other user in the session

@@ -3,14 +3,27 @@ import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useStore } from '@/app/stores'
 import { LayerItem } from './components/LayerItem';
 import { useCollaboration } from '@/app/hooks/useCollaboration';
-import { Layer } from './types';
+import { Layer, LottieAnimationBase } from './types';
 import { Operation, applyPatch } from 'json-joy/lib/json-patch';
-import { MESSAGE_TYPE } from '../Websocket/types';
+import { MESSAGE_TYPE, SessionMessage } from '../Websocket/types';
 
 interface ILayerManagerProps { }
 const LayerManager: FC<ILayerManagerProps> = () => {
-  const { layers, animation, setSelectedLayer, clientId, selectedLayer, updateLayerData } = useStore();
-  const { broadcastUserLayerPosition, getSelectedLayer, sendMessage, getMessage } = useCollaboration()
+  const {
+    layers,
+    animation,
+    setSelectedLayer,
+    clientId,
+    selectedLayer,
+    updateLayerData,
+    setAnimationData,
+  } = useStore();
+
+  const { broadcastUserLayerPosition,
+    getSelectedLayer,
+    // sendMessage,
+    getMessage,
+  } = useCollaboration()
 
   const [layerSessionState, setLayerSessionState] = useState<any>();
 
@@ -21,14 +34,16 @@ const LayerManager: FC<ILayerManagerProps> = () => {
     }
   }, [getSelectedLayer])
 
-  useEffect(() => {
-    const message = getMessage();
+  // useEffect(() => {
+  //   const message = getMessage() as SessionMessage<any>;
 
-    if (message && message?.type === MESSAGE_TYPE.ANIMATION_DATA_CHANGED) {
-      updateLayerData(message?.data as any)
-    }
 
-  }, [getMessage])
+  //   if (message?.type === MESSAGE_TYPE.LAYER_DELETED && message?.data?.updatedBy !== clientId) {
+  //     setAnimationData(message?.data?.animation)
+  //   }
+
+
+  // }, [getMessage, clientId, setAnimationData])
 
 
   const onSelectLayer = (selectedLayer: Layer) => {
@@ -51,6 +66,23 @@ const LayerManager: FC<ILayerManagerProps> = () => {
 
   }, [updateLayerData])
 
+  const deleteLayer = (animationData: LottieAnimationBase, layerName: string) => {
+
+    const index = animationData.layers.findIndex(layer => layer.nm === layerName);
+    const operation: Operation = { op: 'remove', path: `/layers/${index}`, }
+    const patched = applyPatch(animationData, [operation], { mutate: true })
+
+    // sendMessage(JSON.stringify({
+    //   type: MESSAGE_TYPE.LAYER_DELETED, data: {
+    //     animation: animationData,
+    //     operation,
+    //     clientId
+    //   }
+    // }));
+
+    setAnimationData(patched.doc as LottieAnimationBase);
+  }
+
   return (
     <div className='bg-gray-100 w-1/3 py-7 px-4 h-full overflow-y-scroll pb-24'>
       {animation && layers?.length > 0 && layers?.map((layer, index) => (
@@ -60,6 +92,7 @@ const LayerManager: FC<ILayerManagerProps> = () => {
           animationData={animation}
           showLayer={showLayer}
           hideLayer={hideLayer}
+          deleteLayer={deleteLayer}
           idx={index}
           isSelected={layer.nm === selectedLayer?.nm}
           isExternallySelected={layer.nm === layerSessionState?.layerName}

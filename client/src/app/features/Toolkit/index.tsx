@@ -14,10 +14,6 @@ import { MESSAGE_TYPE, SessionMessage } from '../Websocket/types'
 interface IToolkitProps { }
 
 const tools: Tool[] = [
-  // {
-  //   title: 'Scale',
-  //   inputType: 'range'
-  // },
   {
     title: "All Colors",
     inputType: 'color'
@@ -28,11 +24,6 @@ const Toolkit: FC<IToolkitProps> = () => {
   const { sendMessage, getMessage, } = useCollaboration()
   const { colors } = useGetLayerProperties(selectedLayer!)
 
-  // const onChangeValue = (value: string | number, inputType: ToolkitInputType) => {
-
-  // }
-
-  // TODO : fix type's type
   const onChangeColor = (hex: string, path: string) => {
     const rgbValue = hexToRGB(hex);
 

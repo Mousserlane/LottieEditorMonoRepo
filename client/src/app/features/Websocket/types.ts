@@ -18,6 +18,7 @@ export enum MESSAGE_TYPE {
   PONG = 'PONG',
   ACTIVE_CLIENTS = 'active_clients',
   ANIMATION_DATA_CHANGED = 'animation_data_changed',
+  LAYER_DELETED = 'layer_deleted',
 }
 
 export type SessionMessage<T> = {
